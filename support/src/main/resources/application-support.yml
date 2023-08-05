@@ -1,0 +1,25 @@
+server:
+    shutdown: graceful
+spring:
+    kafka:
+        bootstrap-servers: localhost:9092
+    data:
+        redis:
+            host: localhost
+            port: 6379
+    cassandra:
+        contactPoints: scylla
+        schema-action: CREATE_IF_NOT_EXISTS
+        connection:
+            connect-timeout: 10000ms
+        pool:
+            idle-timeout: 10000ms
+        local-datacenter: datacenter1
+        keyspace-name: message
+application:
+    kafka:
+        type-mappings: >
+            simpleStringMessage:io.github.sumfi.support.scylla.domain.SimpleStringMessage,
+            simpleIntMessage:io.github.sumfi.support.scylla.domain.SimpleIntMessage,
+            simpleLog:io.github.sumfi.support.domain.SimpleLog
+

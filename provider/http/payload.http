@@ -1,0 +1,19 @@
+### post string payload
+POST /v1/string/payload/provide
+Host: localhost:9002
+Content-Type: application/json
+
+{
+  "payload": "dummy message",
+  "reserveAt": "2023-07-29T21:19:20"
+}
+
+### post int payload
+POST /v1/int/payload/provide
+Host: localhost:9002
+Content-Type: application/json
+
+{
+  "payload": 1000,
+  "reserveAt": "2023-07-17T01:03:59"
+}

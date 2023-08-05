@@ -1,0 +1,12 @@
+server:
+  port: 9003
+
+spring:
+  config:
+    import:
+      - application-support.yml
+kafka:
+    type-mappings:
+        - simpleStringMessage:io.github.sumfi.support.scylla.domain.SimpleStringMessage
+        - simpleIntMessage:io.github.sumfi.support.scylla.domain.SimpleIntMessage
+        - simpleLog:io.github.sumfi.support.domain.SimpleLog
