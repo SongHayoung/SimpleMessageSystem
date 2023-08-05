@@ -1,19 +1,20 @@
 package io.github.sumfi.worker.scheduler
 
 import java.util.*
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.function.Consumer
 
 internal class Bucket {
-    private val simpleStringMessageTasks: MutableList<Task> = Collections.synchronizedList(mutableListOf())
+    private val simpleStringMessageTaskQueue: Queue<Task> = ConcurrentLinkedQueue<Task>()
 
     fun add(task: Task) {
-        simpleStringMessageTasks.add(task)
+        simpleStringMessageTaskQueue.add(task)
     }
 
     private fun getTaskElements(extractor: (Task) -> Consumer<Unit>): List<Consumer<Unit>> {
         val result = mutableListOf<Consumer<Unit>>()
-        while (simpleStringMessageTasks.isNotEmpty()) {
-            val task = simpleStringMessageTasks.removeFirst()
+        while (simpleStringMessageTaskQueue.isNotEmpty()) {
+            val task = simpleStringMessageTaskQueue.poll()
             result.add(extractor.invoke(task))
         }
 
@@ -28,5 +29,5 @@ internal class Bucket {
         return getTaskElements { task -> task.onRelocate }
     }
 
-    fun size(): Int = simpleStringMessageTasks.size
+    fun size(): Int = simpleStringMessageTaskQueue.size
 }
