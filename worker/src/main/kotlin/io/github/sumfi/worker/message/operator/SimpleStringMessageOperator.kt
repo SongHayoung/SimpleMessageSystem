@@ -7,8 +7,10 @@ import io.github.sumfi.support.scylla.domain.SimpleStringMessage
 import io.github.sumfi.support.scylla.domain.State
 import io.github.sumfi.support.scylla.repository.SimpleStringMessageRepository
 import io.github.sumfi.worker.operator.BaseOperator
+import io.github.sumfi.worker.util.RandomExceptionUtil
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component
+import java.lang.Exception
 import kotlin.random.Random
 import kotlin.random.nextInt
 
@@ -26,21 +28,15 @@ internal class SimpleStringMessageOperator(
     }
 
     override fun operate(simpleStringMessage: SimpleStringMessage) {
-        val fail = samplingFailure()
-        if (fail) {
-            onFailure(simpleStringMessage)
-        } else {
-            stringKafkaTemplate.send(TOPIC_NAME, simpleStringMessage.stringPayload)
-            onSuccess(simpleStringMessage)
-        }
+		try {
+			RandomExceptionUtil.samplingFailure(100)
+			stringKafkaTemplate.send(TOPIC_NAME, simpleStringMessage.stringPayload)
+			onSuccess(simpleStringMessage)
+		} catch (ex: Exception) {
+			log.error("${ex.message}", ex)
+			onFailure(simpleStringMessage)
+		}
     }
-
-    private fun samplingFailure(sample: Int = 100): Boolean {
-        check(sample in 0..100) { "sample value must in range [0, 100]" }
-
-        return Random.nextInt(IntRange(0, 100)) > sample
-    }
-
     protected override fun onSuccess(simpleStringMessage: SimpleStringMessage) {
         log.info("${simpleStringMessage.id} succeed [${simpleStringMessage.retryCount} / ${simpleStringMessage.retryLimit}]")
         simpleStringMessage.updateState(State.SUCCEED)

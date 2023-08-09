@@ -8,8 +8,10 @@ import io.github.sumfi.support.scylla.domain.SimpleStringMessage
 import io.github.sumfi.support.scylla.domain.State
 import io.github.sumfi.support.scylla.repository.SimpleIntMessageRepository
 import io.github.sumfi.worker.operator.BaseOperator
+import io.github.sumfi.worker.util.RandomExceptionUtil
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component
+import java.lang.Exception
 import kotlin.random.Random
 import kotlin.random.nextInt
 
@@ -28,19 +30,14 @@ internal class SimpleIntMessageOperator(
     }
 
     override fun operate(simpleIntMessage: SimpleIntMessage) {
-        val fail = samplingFailure(50)
-        if (fail) {
-            onFailure(simpleIntMessage)
-        } else {
-            intKafkaTemplate.send(TOPIC_NAME, simpleIntMessage.intPayload)
-            onSuccess(simpleIntMessage)
-        }
-    }
-
-    private fun samplingFailure(sample: Int = 100): Boolean {
-        check(sample in 0..100) { "sample value must in range [0, 100]" }
-
-        return Random.nextInt(IntRange(0, 100)) > sample
+		try {
+			RandomExceptionUtil.samplingFailure(50)
+			intKafkaTemplate.send(TOPIC_NAME, simpleIntMessage.intPayload)
+			onSuccess(simpleIntMessage)
+		} catch (ex: Exception) {
+			log.error("${ex.message}", ex)
+			onFailure(simpleIntMessage)
+		}
     }
 
     protected override fun onSuccess(simpleIntMessage: SimpleIntMessage) {
