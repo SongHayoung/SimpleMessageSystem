@@ -31,7 +31,7 @@ internal class SimpleIntMessageListener(
 		} else {
 			timingWheel.add(simpleIntMessage.runAt, Task(
 				onEvent = { simpleIntMessageOperator.operate(simpleIntMessage) },
-				onRelocate = { simpleIntMessageOperator.operate(simpleIntMessage) }
+				onRelocate = { simpleIntMessageOperator.relocate(simpleIntMessage) }
 			))
 		}
 	}
